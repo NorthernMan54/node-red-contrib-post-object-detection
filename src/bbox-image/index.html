@@ -49,12 +49,26 @@
   className: string,
   score: number
 }
+
+or
+
+{
+  text: [x, y],
+  className: string,
+  score: number
+}
+
+</optgroup>
 </code>
 </pre>
             <i>image</i> is an image in <i>Buffer</i> data type.
             You can also use <i>Objects</i> property to specify where to
             retrieve the <i>objects</i> information. Same as the <i>Image</i>
             property for <i>image</i> data.
+
+            <i>bbox</i>draws a box on the image, with className - score included as text to annotate the object
+
+            <i>text</i>writes text on the image, with className - score as text to annotate the object
         </dd>
     </dl>
 

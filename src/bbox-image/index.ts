@@ -1,9 +1,10 @@
 import { Image, createCanvas } from 'canvas';
 
-const COLORS = ['Aqua', 'Coral', 'Cyan', 'Yellow', 'GreenYellow' ];
+const COLORS = ['Aqua', 'Coral', 'Cyan', 'Yellow', 'GreenYellow'];
 
 interface DetectedObject {
-  bbox: [number, number, number, number];  // [x, y, width, height]
+  bbox?: [number, number, number, number];  // [x, y, width, height]
+  text?: [number, number];  // [x, y]
   className: string;
   score: number;
 }
@@ -107,12 +108,12 @@ export = function init(RED: NodeRed) {
       if (config.strokeWidth) {
         try {
           this.strokeWidth = parseInt(config.strokeWidth, 10);
-        } catch {}
+        } catch { }
       }
       if (config.fontSize) {
         try {
           this.fontSize = parseInt(config.fontSize, 10);
-        } catch {}
+        } catch { }
       }
       if (config.objectsPropType) {
         this.objectsPropType = config.objectsPropType;
@@ -148,10 +149,10 @@ export = function init(RED: NodeRed) {
 
     // Handle a single request
     handleRequest(image: Buffer, objects: DetectedObject[],
-        origMsg: NodeRedReceivedMessage) {
+      origMsg: NodeRedReceivedMessage) {
 
       if (image === undefined || !Buffer.isBuffer(image) ||
-          objects === undefined) {
+        objects === undefined) {
         this.error('Image object is invalid');
         return;
       }
@@ -183,30 +184,56 @@ export = function init(RED: NodeRed) {
 
       objects.forEach((obj) => {
         const color = getColor();
-        let [x, y, w, h] = obj.bbox;
-        if( x < 1 ) {
-          // box coordinates are a percentage 
-          x = Math.round(x * image.width);
-          w = Math.round(w * image.width);
-          y = Math.round(y * image.height);
-          h = Math.round(h * image.height);
+        let text = '';
+        if (obj.score) {
+          text = obj.className + ' - ' + obj.score.toFixed(1);
+        } else {
+          text = obj.className;
         }
 
-        ctx.font = `${this.fontSize}px sans-serif`;
-        const txtMet = ctx.measureText(obj.className);
-        let ty = y - this.fontSize - 1;
-        ty = ty < 0 ? 0 : ty;
+        if (obj.bbox) {
+          let [x, y, w, h] = obj.bbox;
+          if (x < 1) {
+            // box coordinates are a percentage
+            x = Math.round(x * image.width);
+            w = Math.round(w * image.width);
+            y = Math.round(y * image.height);
+            h = Math.round(h * image.height);
+          }
 
-        // draw the box
-        ctx.strokeStyle = color;
-        ctx.strokeRect(x, y, w, h);
-        // draw the text box
-        ctx.fillStyle = color;
-        ctx.fillRect(x - 1, ty, txtMet.width + 4, this.fontSize + 1);
-        ctx.fillStyle = 'Black';
-        ctx.fillText(obj.className,
-            x + 1, 
+          ctx.font = `${this.fontSize}px sans-serif`;
+          const txtMet = ctx.measureText(text);
+          let ty = y - this.fontSize - 1;
+          ty = ty < 0 ? 0 : ty;
+
+          // draw the box
+          ctx.strokeStyle = color;
+          ctx.strokeRect(x, y, w, h);
+          // draw the text box
+          ctx.fillStyle = color;
+          ctx.fillRect(x - 1, ty, txtMet.width + 4, this.fontSize + 1);
+          ctx.fillStyle = 'Black';
+          ctx.fillText(text,
+            x + 1,
             ty + Math.round(txtMet.emHeightAscent));
+        } else {
+          let [x, y] = obj.text;
+          if (x < 1) {
+            // box coordinates are a percentage
+            x = Math.round(x * image.width);
+            y = Math.round(y * image.height);
+          }
+
+          ctx.font = `${this.fontSize}px sans-serif`;
+          const txtMet = ctx.measureText(text);
+          let ty = y - this.fontSize - 1;
+          ty = ty < 0 ? 0 : ty;
+
+          ctx.fillStyle = color;
+          ctx.fillText(text,
+            x + 1,
+            ty + Math.round(txtMet.emHeightAscent));
+        }
       });
       return canvas.toBuffer();
     }
