@@ -42,9 +42,7 @@
             The payload shall contain two properties: <i>objects</i> and
             <i>image</i>. The value of <i>objects</i> is an array of the
             following objects:
-<pre>
-<code>
-{
+<pre><code>{
   bbox: [x, y, w, h],
   className: string,
   score: number
@@ -56,19 +54,16 @@ or
   text: [x, y],
   className: string,
   score: number
-}
-
-</optgroup>
-</code>
+}</optgroup></code>
 </pre>
             <i>image</i> is an image in <i>Buffer</i> data type.
             You can also use <i>Objects</i> property to specify where to
             retrieve the <i>objects</i> information. Same as the <i>Image</i>
             property for <i>image</i> data.
-
-            <i>bbox</i>draws a box on the image, with className - score included as text to annotate the object
-
-            <i>text</i>writes text on the image, with className - score as text to annotate the object
+            <br><br>
+            <i>bbox</i> - draws a box on the image, with className - score included as text to annotate the object
+            <br><br>
+            <i>text</i> - writes text on the image, with className - score as text to annotate the object
         </dd>
     </dl>
 
