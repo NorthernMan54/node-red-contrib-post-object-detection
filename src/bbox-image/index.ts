@@ -98,7 +98,7 @@ export = function init(RED: NodeRed) {
     classesURL: string;
     maxNumBoxes = 20;
     strokeWidth = 2;
-    fontSize = 25;
+    fontSize = 35;
     objectsProp = 'objects';
     imageProp = 'image';
     objectsPropType = 'msgPayload';
